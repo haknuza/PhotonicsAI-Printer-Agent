@@ -301,7 +301,9 @@ class RemotePrintTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
-        self.root = Path(self.temp.name)
+        # macOS commonly places temporary directories under a symlinked /var.
+        # The fixture must satisfy the real helper's canonical-directory policy.
+        self.root = Path(self.temp.name).resolve()
         self.patch = patch.object(print_remote, 'LOCK_PATH', str(self.root / 'lock'))
         self.patch.start()
         self.addCleanup(self.patch.stop)
@@ -334,15 +336,27 @@ class RemotePrintTests(unittest.TestCase):
         self.api = FixtureAPI
 
     def request(self):
-        state = print_remote.handle({'action': 'status'}, self.api)['state']
+        result = print_remote.handle({'action': 'status'}, self.api)
+        self.assertTrue(result['ok'], result)
+        state = result['state']
         return {'action': 'submit', 'job_id': 'd' * 32, 'gcode': base64.b64encode(GCODE).decode(),
                 'sha256': hashlib.sha256(GCODE).hexdigest(),
                 'configuration_sha256': state['configuration_sha256']}
 
     def test_status_reads_do_not_write_files_or_dispatch_gcode(self):
         result = print_remote.handle({'action': 'status'}, self.api)
+        self.assertTrue(result['ok'], result)
         self.assertTrue(result['state']['ready_for_print'])
         self.assertEqual(list(self.root.iterdir()), [])
+        self.assertEqual(self.commands, [])
+
+    def test_virtual_sd_directory_symlinks_are_rejected(self):
+        alias = self.root / 'alias'
+        alias.symlink_to(self.root, target_is_directory=True)
+        self.state['configfile']['settings']['virtual_sdcard']['path'] = str(alias)
+        result = print_remote.handle({'action': 'status'}, self.api)
+        self.assertFalse(result['ok'])
+        self.assertIn('without symlinks', result['error'])
         self.assertEqual(self.commands, [])
 
     def test_native_submit_hash_marker_fixed_command_and_replay_protection(self):

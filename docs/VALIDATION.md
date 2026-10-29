@@ -344,3 +344,9 @@ recursion limit; either parsing rejection or delegation rejection is valid for
 that array. Malformed/duplicate/nonfinite/oversized requests still require
 `INVALID_JSON`, and the next valid request must succeed. All 81 specialist tests
 pass locally with three opt-in skips. Production behavior is unchanged.
+
+The subsequent macOS run exposed its symlinked temporary-directory prefix. The
+remote-helper fixture now resolves its directory before using it as virtual SD
+configuration; the production no-symlink rule is unchanged and has an explicit
+rejection regression test. The matrix runs every OS/Python job even if one fails
+so that remaining platform failures are visible together.
