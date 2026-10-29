@@ -328,3 +328,19 @@ JSON files and local documentation links validated. The candidate working tree
 contained no detected provider credentials, private keys or printer address;
 runtime environments, configuration, generated jobs and slicer downloads stay
 ignored. No physical printer connection was used for this publication work.
+
+## CI fixture portability correction — 2026-10-29
+
+The first GitHub run exposed four Creality fixture tests that accidentally
+constructed a real OpenSCAD/sandbox runner. Those tests now inject only the
+process runner while still exercising real preset loading, hashing, fixed CLI
+construction and output handling. All eight Creality tests also pass locally
+with an empty PATH, nonexistent OpenSCAD setting and simulated macOS platform.
+Real local slicing remains a separate opt-in integration check.
+
+The JSON framing test now distinguishes malformed input from a valid deeply
+nested array. Python releases differ in whether their decoder reaches its
+recursion limit; either parsing rejection or delegation rejection is valid for
+that array. Malformed/duplicate/nonfinite/oversized requests still require
+`INVALID_JSON`, and the next valid request must succeed. All 81 specialist tests
+pass locally with three opt-in skips. Production behavior is unchanged.

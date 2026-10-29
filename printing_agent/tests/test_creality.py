@@ -5,8 +5,9 @@ import json
 import os
 from pathlib import Path
 import tempfile
+from types import SimpleNamespace
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from printing_agent.creality import CrealityPrint, FILAMENT, MACHINE, PROCESS, VendorPresets, resolved_profile
 from printing_agent.openscad import ModelError
@@ -46,6 +47,13 @@ class CrealityTests(unittest.TestCase):
         self.binary = self.root / 'CrealityPrint'
         self.binary.write_text('#!/bin/sh\nexit 0\n')
         self.binary.chmod(0o700)
+        # These are preset/CLI fixture tests. Never discover installed OpenSCAD,
+        # Bubblewrap or prlimit, or require Linux just to build a command list.
+        runner = SimpleNamespace(prlimit='/fixture/prlimit', bwrap='/fixture/bwrap',
+                                 _run=Mock(side_effect=AssertionError('Unexpected slicer execution')))
+        guard = patch('printing_agent.creality.OpenSCADAdapter', return_value=runner)
+        guard.start()
+        self.addCleanup(guard.stop)
 
     def adapter(self):
         return CrealityPrint(str(self.binary), str(self.resources))

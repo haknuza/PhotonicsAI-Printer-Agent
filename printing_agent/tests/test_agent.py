@@ -226,15 +226,19 @@ class ProtocolTests(unittest.TestCase):
         agent = PrintingAgent()
         self.addCleanup(agent.close)
         valid = json.dumps(delegation({"command": "position"}))
-        bad = ["{", '{"version":1,"version":1}', '{"n":NaN}', "[" * 2000 + "0" + "]" * 2000, "x" * 70000,
+        bad = ["{", '{"version":1,"version":1}', '{"n":NaN}', "x" * 70000,
                json.dumps({"task_id": "ա" * 40000}, ensure_ascii=False)]
-        source = io.StringIO("\n" + "\n".join(bad + [valid]) + "\n")
+        deep = "[" * 2000 + "0" + "]" * 2000
+        source = io.StringIO("\n" + "\n".join(bad + [deep, valid]) + "\n")
         output = io.StringIO()
         serve(agent, source, output)
         responses = [json.loads(line) for line in output.getvalue().splitlines()]
-        self.assertEqual(len(responses), len(bad) + 1)
-        for reply in responses[:-1]:
+        self.assertEqual(len(responses), len(bad) + 2)
+        for reply in responses[:len(bad)]:
             self.assertEqual(reply["error"]["code"], "INVALID_JSON")
+        # This is valid JSON but never a delegation object. Decoder recursion
+        # limits differ between Python releases: reject it at either boundary.
+        self.assertIn(responses[-2]["error"]["code"], ("INVALID_JSON", "INVALID_REQUEST"))
         self.assertTrue(responses[-1]["ok"])
 
     def test_real_environment_subprocess_and_real_option_rejected(self):
