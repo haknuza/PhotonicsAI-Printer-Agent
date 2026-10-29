@@ -508,11 +508,17 @@ class ClientTests(unittest.TestCase):
               contextlib.redirect_stdout(io.StringIO())):
             self.assertEqual(run(SQUARE, 20, ['--mock']), 0)
 
+    def test_cli_defaults_to_mock_even_with_hardware_environment(self):
+        with patch.dict('os.environ', {'PRINTER_MODE': 'real', 'PRINTER_ALLOW_MOTION': '1'}), \
+                patch('simple_runner.SSHPrinter', side_effect=AssertionError('SSH accessed')), \
+                contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(run(SQUARE, 20, []), 0)
+
     def test_cli_cancel_sends_no_run(self):
         printer = MockPrinter()
         printer.simulated = False
         with patch('simple_runner.SSHPrinter', return_value=printer), patch('sys.stdin.isatty', return_value=True), patch('builtins.input', return_value='NO'), contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
-            self.assertEqual(run(SQUARE, 20, []), 1)
+            self.assertEqual(run(SQUARE, 20, ['--real']), 1)
         self.assertEqual(printer.submitted_scripts, [])
 
     def test_import_has_no_hardware_side_effect(self):

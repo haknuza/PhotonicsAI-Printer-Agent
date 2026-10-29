@@ -1,4 +1,4 @@
-"""LAN password gate using the browser's native login dialog; no dashboard changes."""
+"""LAN password gate using the browser's native login dialog."""
 import hmac
 import ipaddress
 import os
@@ -65,9 +65,4 @@ def install_remote_access(app,password=None):
         if not local_request():
             response.vary.add('Authorization')
             response.headers['Cache-Control']='no-store'
-            if request.endpoint=='index' and response.status_code==200 and response.mimetype=='text/html':
-                # Only remote responses get the compatibility shim. The existing
-                # template, scripts, styling and local dashboard stay untouched.
-                response.set_data(response.get_data().replace(b'<script src="/static/translations.js"',
-                    b'<script src="/static/lan-compat.js" defer></script>\n  <script src="/static/translations.js"',1))
         return response

@@ -1,7 +1,0 @@
-.venv/
-__pycache__/
-*.log
-results/images/
-.env
-.env.*
-.DS_Store

@@ -118,7 +118,7 @@ class AbsoluteCLITests(unittest.TestCase):
                 patch('simple_runner.sys.stdin.isatty', return_value=True), \
                 patch('builtins.input', return_value=confirmation) as prompt, \
                 contextlib.redirect_stdout(output), contextlib.redirect_stderr(error):
-            code = run([], argv=arguments)
+            code = run([], argv=['--real'] + arguments)
         return code, output.getvalue(), error.getvalue(), prompt
 
     def test_preview_has_no_mutations_or_confirmation(self):

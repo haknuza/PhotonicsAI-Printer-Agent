@@ -156,7 +156,7 @@ class XYTests(unittest.TestCase):
             printer.state, printer.simulated = home_state(), False
             output = io.StringIO()
             with patch('simple_runner.SSHPrinter', return_value=printer), patch('sys.stdin.isatty', return_value=True), patch('builtins.input', return_value=answer), contextlib.redirect_stdout(output), contextlib.redirect_stderr(output):
-                self.assertEqual(run([fw(x, 50)], argv=arguments), expected_code)
+                self.assertEqual(run([fw(x, 50)], argv=['--real'] + arguments), expected_code)
             self.assertEqual(printer.submitted_scripts, [])
             self.assertIn('negative coordinates', output.getvalue())
             self.assertIn('nozzle is physically clear', output.getvalue())

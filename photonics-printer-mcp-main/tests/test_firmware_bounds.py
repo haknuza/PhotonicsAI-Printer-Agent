@@ -120,7 +120,7 @@ class FirmwareBoundsTests(unittest.TestCase):
         with patch('simple_runner.SSHPrinter', return_value=printer), \
                 patch('builtins.input', side_effect=AssertionError('Confirmation requested')), \
                 contextlib.redirect_stdout(output):
-            result = run([], argv=['--target', '0', '0', '30', '--speed', '5', '--preview'])
+            result = run([], argv=['--real', '--target', '0', '0', '30', '--speed', '5', '--preview'])
         self.assertEqual(result, 0)
         self.assertIn('X -12..221, Y -20..223, Z -5..246 mm', output.getvalue())
         self.assertEqual(printer.submitted_scripts, [])

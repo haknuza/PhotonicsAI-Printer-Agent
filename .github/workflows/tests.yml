@@ -1,0 +1,35 @@
+name: Tests
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python: ['3.10', '3.14']
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+      - name: Install
+        run: python scripts/setup.py
+      - name: Check dependencies
+        run: |
+          lab-agents/.venv/bin/python -m pip check
+          photonics-printer-mcp-main/.venv/bin/python -m pip check
+      - name: Test without hardware
+        env:
+          PRINTER_MODE: mock
+          PRINTER_ALLOW_MOTION: '0'
+          FASTMCP_CHECK_FOR_UPDATES: 'off'
+        run: python scripts/check.py

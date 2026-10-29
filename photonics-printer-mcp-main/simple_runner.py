@@ -36,7 +36,11 @@ def confirm(token, simulated):
 def run(steps, speed=20.0, argv=None, z_speed=DEFAULT_Z_SPEED):
     parser = argparse.ArgumentParser(description='Smooth X/Y/Z sequences with an on-printer software watchdog.',
                                      epilog='Absolute movement: ./printerctl move X Y Z --speed N [--preview | --mock]')
-    parser.add_argument('--mock', action='store_true', help='Simulation only; no SSH access.')
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument('--mock', dest='mock', action='store_true', default=True,
+                      help='Simulation only; no SSH access (default).')
+    mode.add_argument('--real', dest='mock', action='store_false',
+                      help='Explicitly select the guarded SSH transport; requires operator authorization.')
     parser.add_argument('--target', nargs=3, type=float, metavar=('X', 'Y', 'Z'),
                         help='Absolute XYZ target in mm; one straight movement, all axes must be homed.')
     parser.add_argument('--speed', type=float, default=speed,
@@ -148,7 +152,8 @@ def run(steps, speed=20.0, argv=None, z_speed=DEFAULT_Z_SPEED):
             print('Preview only; no motion sent.')
             return 0
         print('Confirm the displayed path is physically clear. Keep other printer controls idle.\n'
-              'Emergency stop from another terminal: ./printerctl stop')
+              'Emergency stop from another terminal: ./printerctl stop%s' %
+              (' --mock' if printer.simulated else ' --real'))
         confirm('ENTER' if entry else 'MOVE', printer.simulated)
         print('Moving%s...' % (' (simulation)' if printer.simulated else ''))
         result = run_prepared(printer, steps, args.speed, prepared)

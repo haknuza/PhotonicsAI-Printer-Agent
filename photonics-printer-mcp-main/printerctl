@@ -20,7 +20,9 @@ case "${1:-}" in
     ;;
   mesh-load)
     shift
-    set -- --mesh-load "${1:-default}"
+    printer_profile=${1:-default}
+    if [ "$#" -gt 0 ]; then shift; fi
+    set -- --mesh-load "$printer_profile" "$@"
     ;;
   move)
     shift

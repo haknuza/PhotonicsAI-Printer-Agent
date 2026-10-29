@@ -2,104 +2,118 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#FFFFFF">
-  <title>Lab Agents · PhotonicsAI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PhotonicsAI Printer Agent</title>
   <link rel="icon" href="/static/photonicsai-logo.png">
-  <link rel="stylesheet" href="/static/chat.css">
-  <link rel="stylesheet" href="/static/integration.css">
-  <link rel="stylesheet" href="/static/mascot.css">
-  <script src="/static/translations.js" defer></script>
-  <script src="/static/mascot.js" defer></script>
+  <link rel="stylesheet" href="/static/dashboard.css">
   <script src="/static/ui.js" defer></script>
+  <script type="importmap">{"imports":{"three":"/static/vendor/three-r160/build/three.module.js"}}</script>
+  <script src="/static/models.js" type="module"></script>
+  <script src="/static/prints.js" type="module"></script>
 </head>
-<body data-home="{{ home_text }}">
-  <svg class="icon-library" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <!-- White lettering and a neon-green mark for dark mode. -->
-      <filter id="photonics-logo-dark" color-interpolation-filters="sRGB" x="0" y="0" width="100%" height="100%">
-        <feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 -4 0 0 1" result="lettering"/>
-        <feComposite in="lettering" in2="SourceGraphic" operator="in" result="white-lettering"/>
-        <feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 .439  0 0 0 0 1  0 0 0 0 .576  -6 6 0 0 0" result="laser-mark"/>
-        <feComposite in="laser-mark" in2="SourceGraphic" operator="in" result="green-mark"/>
-        <feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="green-mark"/><feMergeNode in="white-lettering"/></feMerge>
-      </filter>
-      <!-- Replace only pale highlights; never add an opaque background or blur. -->
-      <filter id="photonics-mascot-dark" color-interpolation-filters="sRGB" x="0" y="0" width="100%" height="100%">
-        <feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 .40  0 0 0 0 .80  0 0 0 0 .58  4 4 4 0 -8" result="mint-highlights"/>
-        <feComposite in="mint-highlights" in2="SourceGraphic" operator="in" result="clipped-highlights"/>
-        <feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="clipped-highlights"/></feMerge>
-      </filter>
-    </defs>
-    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7M14 10v7"/></symbol>
-    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
-    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M7 17 17 7M7 7h10v10"/></symbol>
-    <symbol id="i-send" viewBox="0 0 24 24"><path d="m6 10 6-6 6 6M12 4v16"/></symbol>
-    <symbol id="i-menu" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16"/></symbol>
-    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 1-8 8H4l1.5-4A8 8 0 1 1 20 11Z"/></symbol>
-    <symbol id="i-scan" viewBox="0 0 24 24"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5M3 12h18"/><circle cx="12" cy="12" r="3"/></symbol>
-    <symbol id="i-home" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7M5 9v12h14V9M9 21v-8h6v8"/></symbol>
-    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></symbol>
-    <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></symbol>
-    <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
-    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
-    <symbol id="i-stop" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="3"/></symbol>
-    <symbol id="i-optic" viewBox="0 0 32 32"><g fill="none" stroke="currentColor" stroke-width="1.4"><path d="M7 8v16M11.5 5v22M16 3v26M20.5 5v22M25 8v16"/><path d="M3 16h26" opacity=".5"/></g></symbol>
-    <symbol id="i-theme" viewBox="0 0 24 24"><path d="M20.2 15.5A8.5 8.5 0 0 1 8.5 3.8 8.5 8.5 0 1 0 20.2 15.5Z"/><path d="M16 3v3M14.5 4.5h3"/></symbol>
-    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></symbol>
-  </svg>
-  <button id="drawerBackdrop" class="drawer-backdrop" aria-label="Close sidebar" hidden></button>
-  <aside id="sidebar" class="sidebar" aria-label="Command history">
-    <a class="brand" href="/" aria-label="Photonics and Artificial Intelligence Laboratories"><img src="/static/photonicsai-logo.png" alt="Photonics & Artificial Intelligence Laboratories"></a>
-    <button id="closeSidebar" class="icon-button mobile-only drawer-close" aria-label="Close sidebar"><svg><use href="#i-close"/></svg></button>
-    <button id="newCommand" class="button new-command"><svg><use href="#i-plus"/></svg><span>New chat</span><kbd>⌘ K</kbd></button>
-    <div class="history-heading"><span>YOUR WORKSPACE</span><span class="tiny-dot"></span></div>
-    <nav id="history" class="history" aria-label="Past commands"></nav>
-    <p id="historyEmpty" class="history-empty">A little space for your next discovery.<br>Your commands will appear here.</p>
-    <div class="sidebar-bottom">
-      <nav class="service-links" aria-label="Lab services"><a href="http://127.0.0.1:8767/" target="_blank" rel="noopener">Scanner ↗</a><a href="http://127.0.0.1:8765/" target="_blank" rel="noopener">Camera ↗</a></nav>
-      <p class="endpoint-note">HOME · {{ home_text }} mm<br>Z=14.5 mm · R=10 mm · 20 mm/s</p>
-      <div class="lab-signature"><span class="lab-monogram"><svg><use href="#i-optic"/></svg></span><div><strong>PhotonicsAI Lab</strong><small>Yerevan State University</small></div></div>
-      <div class="sidebar-foot"><span>Light. Intelligence. Discovery.</span><span class="tiny-dot"></span></div>
-    </div>
-  </aside>
-  <div class="workspace">
-    <header class="topbar">
-      <div class="topbar-left"><button id="openSidebar" class="icon-button mobile-only" aria-label="Open command history" aria-controls="sidebar" aria-expanded="false"><svg><use href="#i-menu"/></svg></button><img class="mobile-brand mobile-only" src="/static/photonicsai-logo.png" alt="PhotonicsAI Lab"><span class="app-name">Lab Agents <span class="app-version">WORKSPACE</span></span></div>
-      <div class="topbar-right"><button id="language" class="text-button" type="button" aria-label="Switch language">English</button><button id="themeToggle" class="theme-toggle" type="button" aria-label="Switch to dark mode" aria-pressed="false"><svg class="theme-icon" aria-hidden="true"><use href="#i-theme"/></svg></button><span id="mode" class="mode"><span class="status-dot"></span><span id="modeText">Connecting</span></span><button id="emergency" class="emergency" title="Emergency shutdown"><svg><use href="#i-stop"/></svg><span>Emergency stop</span></button></div>
+<body>
+  <main>
+    <header>
+      <img src="/static/photonicsai-logo.png" alt="PhotonicsAI" width="200">
+      <p class="badge">Describe → preview → approve → prepare print</p>
+      <h1>PhotonicsAI Printer Agent</h1>
+      <p>A foundation for requesting, reviewing and printing parametric models.</p>
     </header>
-    <main id="main" class="main">
-      <section id="emptyState" class="empty-state">
-        <div class="hero-optic" aria-hidden="true"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="43"/><circle cx="50" cy="50" r="32"/><path d="M30 30v40M40 22v56M50 16v68M60 22v56M70 30v40"/><path class="optic-axis" d="M5 50h90"/></svg><span class="optic-star"></span></div>
-        <p class="overline">PHOTONICSAI LAB <span>·</span> YEREVAN STATE UNIVERSITY</p>
-        <h1>Let's find that <span>green cell.</span></h1>
-        <p class="hero-description">From a simple instruction to a precise action.<br>Your lab, in conversation.</p>
-        <div class="starter-grid">
-          <button class="starter" data-prompt="Clean the largest green cell."><svg class="starter-icon"><use href="#i-scan"/></svg><strong>Find & clean</strong><span>Clean the largest green cell</span><svg class="starter-arrow"><use href="#i-arrow"/></svg></button>
-          <button class="starter" data-prompt="Inspect the cells."><svg class="starter-icon"><use href="#i-eye"/></svg><strong>Take a closer look</strong><span>Inspect the cells on the bed</span><svg class="starter-arrow"><use href="#i-arrow"/></svg></button>
-          <button class="starter" data-prompt="Return home."><svg class="starter-icon"><use href="#i-home"/></svg><strong>Back to the start</strong><span>Plan a return to home</span><svg class="starter-arrow"><use href="#i-arrow"/></svg></button>
-        </div>
-        <p class="hero-note"><span class="tiny-dot"></span> Computer vision meets precise motion</p>
-      </section>
-      <section id="conversation" class="conversation" aria-label="Command conversation" hidden>
-        <div id="turns"></div>
-      </section>
-    </main>
-    <div class="composer-dock">
-      <div class="composer-stack">
-      <form id="composer" class="composer">
-        <label class="sr-only" for="prompt">Your command or answer</label>
-        <textarea id="prompt" rows="1" maxlength="2000" placeholder="Ask your lab to do something…" required></textarea>
-        <div class="composer-bottom"><span class="composer-hint"><svg><use href="#i-optic"/></svg><span id="composerHint">Describe. Discover. Do.</span></span><button id="send" class="send-button" type="submit" aria-label="Send command"><svg><use href="#i-send"/></svg></button></div>
-        <photonics-mascot asset-base="/static/mascot/"></photonics-mascot>
-      </form>
-      <div id="notice" class="notice" role="status" hidden></div>
-      <p class="composer-foot"><span>Powered by vision. Guided by you.</span><span>Review every path before execution.</span></p>
+    <section aria-labelledby="model-title">
+      <h2 id="model-title">Describe and review a model</h2>
+      <p>Describe the object, dimensions and units. The AI can ask design questions,
+         generate OpenSCAD and send it to the isolated local compiler.</p>
+      <p id="compiler-config" role="status">Checking local compiler configuration…</p>
+      <p id="generation-config" role="status">Checking AI provider configuration…</p>
+      <label for="model-description">Object description, revision request or clarification answer</label>
+      <textarea id="model-description" rows="4" maxlength="4000" placeholder="Make a spacer with a 24 mm outside diameter, an 8 mm hole and a 6 mm height."></textarea>
+      <p>Descriptions, design conversation and selected source are sent to the configured
+         AI provider. API keys stay on the backend.</p>
+      <button id="generate-model" type="button" disabled>Generate model</button>
+      <p id="generation-state" role="status" aria-live="polite">Describe a new object or request a revision of the selected model.</p>
+      <div id="design-questions"></div>
+      <label for="generation-history">Saved AI design requests</label>
+      <select id="generation-history"><option value="">Select a saved request</option></select>
+      <p id="model-origin">No AI-generated model selected.</p>
+      <h3>OpenSCAD source and manual compilation</h3>
+      <p>You can also edit/paste source or open a .scad file. The hand-written example
+         remains independent of the AI provider.</p>
+      <div class="model-toolbar">
+        <button id="load-example" type="button">Load hand-written example</button>
+        <button id="new-model" type="button">New model</button>
+        <label>Open .scad file <input id="model-file" type="file" accept=".scad"></label>
       </div>
-    </div>
-  </div>
-  <dialog id="lightbox" class="lightbox" aria-label="Image viewer"><div class="lightbox-toolbar"><span>Target inspection</span><div><button id="zoomOut" class="icon-button" aria-label="Zoom out">−</button><button id="zoomReset" class="text-button">Reset</button><button id="zoomIn" class="icon-button" aria-label="Zoom in">+</button><button id="closeLightbox" class="icon-button" aria-label="Close image viewer"><svg><use href="#i-close"/></svg></button></div></div><div id="imageViewport" class="image-viewport"><img id="zoomImage" alt="Enlarged computer vision image" draggable="false"></div><p>Scroll or pinch to zoom · drag to pan · Esc to close</p></dialog>
-  <dialog id="confirmDialog" class="confirm-dialog" aria-labelledby="confirmTitle"><h2 id="confirmTitle">Emergency shutdown?</h2><p>This requests a printer shutdown. Manual recovery may be required.</p><div class="actions"><button id="dismissConfirm" class="button secondary">Keep running</button><button id="confirmEmergency" class="button danger">Request shutdown</button></div></dialog>
-  <dialog id="deleteChatDialog" class="confirm-dialog" aria-labelledby="deleteChatTitle" aria-describedby="deleteChatDescription"><h2 id="deleteChatTitle">Delete this chat?</h2><p id="deleteChatName" class="delete-chat-name"></p><p id="deleteChatDescription">This removes the conversation from this browser. Saved experiment records are kept.</p><div class="actions"><button id="cancelDeleteChat" class="button secondary" autofocus>Keep chat</button><button id="confirmDeleteChat" class="button danger">Delete chat</button></div></dialog>
+      <label for="model-source">Source: <span id="model-filename">model.scad</span> (128 KiB maximum)</label>
+      <textarea id="model-source" rows="13" spellcheck="false" placeholder="cube([20, 20, 10]);"></textarea>
+      <p>External model files (include, use, import, surface) are disabled. Use self-contained source.</p>
+      <button id="compile-model" type="button" disabled>Compile new revision</button>
+      <p id="model-state" role="status" aria-live="polite">Load the example or enter .scad source.</p>
+      <label for="model-revisions">Saved revisions</label>
+      <select id="model-revisions"><option value="">New model</option></select>
+      <p id="model-version">New model</p>
+      <div id="model-viewer"></div>
+      <p id="preview-state" role="status">No model loaded. Drag to rotate; scroll or pinch to zoom.</p>
+      <p id="model-dimensions">Dimensions: no compiled model</p>
+      <button id="fit-model" type="button">Fit view</button>
+      <p>Axes: X red, Y green, Z blue. Dimensions use the original model axes in millimeters.</p>
+      <p id="model-artifacts" hidden>
+        <a id="source-download" download>Download .scad</a>
+        <a id="stl-download" download>Download .stl</a>
+      </p>
+      <details><summary>Compiler diagnostics, including warnings</summary><pre id="model-diagnostics">No compilation yet.</pre></details>
+      <label><input id="model-confirm" type="checkbox" disabled> I reviewed and approve this exact model version only.</label>
+      <button id="approve-model" type="button" disabled>Approve model version</button>
+      <p id="model-approval" role="status">No model approved. Model approval never triggers a printer action.</p>
+    </section>
+    <section aria-labelledby="print-title">
+      <h2 id="print-title">Prepare and start a print</h2>
+      <p>Approve the model above, select the material actually loaded and prepare its
+         toolpath with Creality Print. Preparing a job does not upload it or operate the printer.</p>
+      <p id="print-config" role="status">Checking print connection configuration…</p>
+      <button id="read-printer" type="button" disabled>Check printer connection</button>
+      <p id="print-readiness" role="status">Printer status has not been requested.</p>
+      <label for="print-profile">Material and nozzle</label>
+      <select id="print-profile"><option value="">Choose after checking the spool and nozzle</option></select>
+      <p>Creality's printer/material presets use bounded settings here: a 0.4 mm nozzle,
+         0.2 mm layers, 15% infill and no supports. These settings have not been physically print-tested. Check your spool's
+         temperature range and use a suitable model orientation.</p>
+      <button id="prepare-print" type="button" disabled>Prepare approved model for printing</button>
+      <label for="print-history">Saved print jobs</label>
+      <select id="print-history"><option value="">Select a prepared job</option></select>
+      <p id="print-state" role="status" aria-live="polite">No print job selected.</p>
+      <pre id="print-summary">The sliced job and settings will appear here.</pre>
+      <svg id="print-toolpath" viewBox="0 0 220 220" role="img" aria-label="Top view of extrusion paths on the build plate" hidden></svg>
+      <p id="print-path-note" hidden>Top view of extrusion paths across all layers. This is not a layer-by-layer or collision simulation.</p>
+      <a id="gcode-download" hidden download>Download the exact sliced G-code</a>
+      <p>Starting this job will home the printer, load its saved default bed mesh,
+         heat the nozzle and bed, and extrude material.</p>
+      <label class="print-confirmation"><input id="print-review-confirm" type="checkbox" disabled>
+        I reviewed this exact model revision, toolpath and print settings.</label>
+      <label class="print-confirmation"><input id="print-setup-confirm" type="checkbox" disabled>
+        I checked the loaded material and 0.4 mm nozzle, the build plate and path are
+        clear, and the printer is configured for regular 3D printing.</label>
+      <button id="start-print" type="button" disabled>Approve job &amp; start print</button>
+      <button id="refresh-print" type="button" disabled>Read print progress</button>
+      <p>Stay with the printer for the first layer. Use the printer's touchscreen
+         to pause or cancel, or its physical power switch if necessary.</p>
+    </section>
+    <section aria-labelledby="status-title">
+      <h2 id="status-title">Simulated printer</h2>
+      <p>This section shows an in-memory mock. Use the print panel above for
+         the real printer connection and progress.</p>
+      <button id="refresh" type="button">Refresh mock status</button>
+      <p id="notice" role="status" aria-live="polite">Loading mock status…</p>
+      <div id="printer-data"></div>
+    </section>
+    <section aria-labelledby="scope-title">
+      <h2 id="scope-title">What remains to implement</h2>
+      <p>Beginner printing guidance, physically validated profiles, camera readiness,
+         chatbot orchestration and RAG are not implemented.</p>
+      <p>Model approval accepts a design. Separate final print approval authorizes
+         the exact sliced job. Physical print quality still needs validation.</p>
+      <p>The retained motion controller validates positioning only. It excludes
+         heating and extrusion. Printing uses the separate, explicitly enabled SSH print-job adapter.</p>
+    </section>
+  </main>
 </body>
 </html>

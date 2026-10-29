@@ -3,11 +3,14 @@
 **/__pycache__/
 **/*.pyc
 **/.env
+**/.env.*
+!**/.env.example
 **/.remote-access-password
 **/results/
-**/captures/
 **/*.log
-**/previous_stream.json
-**/local-stream.xml
 node_modules/
+.tools/
 .vscode/
+**/*.pem
+**/*.key
+**/*.sock

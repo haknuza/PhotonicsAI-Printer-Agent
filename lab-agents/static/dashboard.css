@@ -1,0 +1,32 @@
+:root { color-scheme: light dark; font: 16px/1.6 system-ui, sans-serif; }
+body { margin: 0; background: #f3f6f4; color: #183d2c; }
+main { max-width: 900px; margin: 0 auto; padding: 2rem 1rem; }
+header, section { background: #fff; border: 1px solid #d8e4db; border-radius: 1rem; padding: 1.5rem; margin-bottom: 1rem; }
+h1, h2 { line-height: 1.2; }
+.badge { display: table; border-radius: 1rem; padding: .25rem .75rem; background: #e2f5e9; }
+button { font: inherit; padding: .5rem 1rem; border: 1px solid #31794a; border-radius: .5rem; background: #22643b; color: white; cursor: pointer; }
+button:disabled { opacity: .6; cursor: wait; }
+.print-confirmation { display: block; margin: .75rem 0; }
+#print-toolpath { display: block; max-width: 440px; width: 100%; height: auto; aspect-ratio: 1; background: #f3f6f4; border: 1px solid #a7bcae; }
+#print-toolpath[hidden] { display: none; }
+#start-print { background: #8a3a1f; border-color: #8a3a1f; margin: .75rem 0; }
+summary { cursor: pointer; padding: .5rem 0; }
+pre { overflow: auto; padding: 1rem; background: #f3f6f4; border-radius: .5rem; font-size: .85rem; }
+textarea { display: block; box-sizing: border-box; width: 100%; margin: .75rem 0; padding: .75rem; font: 14px/1.5 monospace; resize: vertical; }
+.model-toolbar { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; margin-bottom: 1rem; }
+select { max-width: 100%; padding: .5rem; font: inherit; }
+#model-version, #compiler-config { overflow-wrap: anywhere; font-size: .85rem; }
+#model-viewer { width: 100%; height: 380px; border-radius: .75rem; overflow: hidden; background: #18281f; }
+#model-viewer canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+#model-artifacts a { display: inline-block; margin-right: 1.5rem; color: #31794a; }
+#model-artifacts a[hidden] { display: none; }
+#model-dimensions { font-weight: bold; }
+#design-questions { border-left: 3px solid #70b98a; padding-left: 1rem; }
+#generation-config, #model-origin { overflow-wrap: anywhere; font-size: .9rem; }
+@media (prefers-color-scheme: dark) {
+  body, pre { background: #14241b; color: #e2f5e9; }
+  header, section { background: #203128; border-color: #40584a; }
+  .badge { background: #2d513a; }
+  #model-artifacts a { color: #8ce6ae; }
+  header img { background: white; border-radius: .5rem; padding: .5rem; max-width: 90%; }
+}

@@ -24,7 +24,7 @@ class FlowTests(unittest.TestCase):
             actions.append(copy.deepcopy(request))
             return original(request)
         with patch('simple_runner.SSHPrinter', return_value=printer), patch.object(printer, 'request', side_effect=tracked), patch('sys.stdin.isatty', return_value=True), patch('builtins.input', side_effect=answers), contextlib.redirect_stdout(output), contextlib.redirect_stderr(output):
-            code = run([fw(x, 50)], argv=args)
+            code = run([fw(x, 50)], argv=['--real'] + args)
         return code, output.getvalue(), actions
 
     def test_entry_inside_area_exits_without_moving_or_clearing_mesh(self):

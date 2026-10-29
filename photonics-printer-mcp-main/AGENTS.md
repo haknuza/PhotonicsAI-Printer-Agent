@@ -1,6 +1,6 @@
 # Working on this repository
 
-Read README.md for the user workflow and ../docs/VALIDATION.md for package validation.
+Read README.md for the guarded positioning interface and ../docs/VALIDATION.md for package validation.
 
 - A request to edit, document, or test this repository does not authorize physical
   movement. Default to mock tests. Before a hardware test, obtain the operator's
@@ -19,6 +19,9 @@ Read README.md for the user workflow and ../docs/VALIDATION.md for package valid
   tokens and the no-retry rule for uncertain movement outcomes.
 - Do not send arbitrary G-code. The remote API validates allowed actions/fields.
 - Keep simple.py edits made by the operator; importing it must not move hardware.
+- Terminal positioning defaults to mock. Hardware selection requires explicit
+  `--real`; do not restore implicit SSH startup. Printing needs a separate future
+  print-job adapter, never relaxed idle/heater/extrusion guards.
 - Run meaningful checks for your change: `.venv/bin/python -m unittest discover
   -s tests -v`, plus `.venv/bin/python -m pip check` for dependency changes.
   All automated tests must remain independent of a physical printer.

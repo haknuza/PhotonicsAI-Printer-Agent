@@ -1,0 +1,2 @@
+# Preserve upstream formatting in the unmodified vendored viewer dependencies.
+lab-agents/static/vendor/** -whitespace

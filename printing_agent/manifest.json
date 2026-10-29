@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "specialist": "3d-printing",
+  "name": "PhotonicsAI Printer Agent",
+  "description": "Printer status and operator-reviewed positioning using the PhotonicsAI guarded controller.",
+  "transport": "stdio-jsonl",
+  "entrypoint": [
+    "python3",
+    "-m",
+    "printing_agent",
+    "--mode",
+    "mock"
+  ],
+  "working_directory": "repository root",
+  "request_schema": "printing_agent/request.schema.json",
+  "system_prompt": "printing_agent/SYSTEM_PROMPT.md",
+  "modes": [
+    "mock"
+  ],
+  "commands": [
+    "describe",
+    "capabilities",
+    "status",
+    "position",
+    "move",
+    "home",
+    "job",
+    "stop"
+  ],
+  "route_when": [
+    "printer state or position",
+    "printer motion capabilities",
+    "preview or simulate absolute XYZ positioning",
+    "preview or simulate firmware homing",
+    "poll a printer operation",
+    "emergency shutdown"
+  ],
+  "unsupported": [
+    "OpenSCAD generation or compilation via this stdio motion interface",
+    "model previews via this stdio motion interface",
+    "physical printer operation",
+    "STL or 3MF slicing",
+    "print file upload or execution",
+    "heating",
+    "extrusion",
+    "raw G-code",
+    "mesh management",
+    "web browsing or general computer control"
+  ],
+  "approval": {
+    "required_for": [
+      "move execution",
+      "home execution"
+    ],
+    "source": "trusted router operator interface",
+    "fields": [
+      "confirmed",
+      "clear_path"
+    ],
+    "token_lifetime_seconds": 120,
+    "single_use": true,
+    "task_scoped": true
+  },
+  "units": {
+    "coordinates": "absolute printer mm",
+    "speed": "mm/s"
+  },
+  "automatic_retry": false,
+  "requires_camera": false,
+  "requires_api_key": false
+}
